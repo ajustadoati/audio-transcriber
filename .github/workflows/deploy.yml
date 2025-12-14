@@ -26,7 +26,10 @@ jobs:
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
           cd /home/ajustado/audio-transcriber || exit 1
           git pull origin main
-	  
+
+	  docker stop qr-transcriber || true
+          docker rm qr-transcriber || true
+
           docker build -t audio-transcriber .
 
           docker run -d \
