@@ -24,7 +24,7 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
-          cd ~/qr-transcriber || exit 1
+          cd /home/ajustado/qr-transcriber || exit 1
           git pull origin main
 
           docker build -t qr-transcriber .
