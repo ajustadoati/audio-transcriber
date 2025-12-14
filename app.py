@@ -30,7 +30,7 @@ if audio:
 
     # Transcribe
     with st.spinner("Transcribing audio..."):
-        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"]) # is for local-test change by = st.secrets["OPENAI_API_KEY"])
 
         with open(audio_path, "rb") as f:
             transcription = client.audio.transcriptions.create(
