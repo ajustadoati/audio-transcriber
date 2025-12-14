@@ -27,9 +27,6 @@ jobs:
           cd /home/ajustado/audio-transcriber || exit 1
           git pull origin main
 	  
-	  docker stop audio-transcriber || true
-          docker rm audio-transcriber || true
-
           docker build -t audio-transcriber .
 
           docker run -d \
