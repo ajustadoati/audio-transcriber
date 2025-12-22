@@ -2,6 +2,9 @@ import streamlit as st
 import soundfile as sf
 from openai import OpenAI
 import os
+import uuid
+import json
+from datetime import datetime
 
 st.set_page_config(page_title="English Audio Transcriber", layout="centered")
 
@@ -44,19 +47,51 @@ if audio:
     st.subheader("📝 Transcription")
     st.write(text)
 
+    # Generate unique ID for this transcription
+    unique_id = str(uuid.uuid4())
+
+    # Create shared_audios directory if it doesn't exist
+    os.makedirs("shared_audios", exist_ok=True)
+
+    # Save audio with unique ID
+    shared_audio_path = f"shared_audios/{unique_id}.wav"
+    os.rename(audio_path, shared_audio_path)
+
     # Save transcription to file
-    txt_path = "transcription.txt"
+    txt_path = f"shared_audios/{unique_id}.txt"
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(text)
+
+    # Save metadata
+    metadata = {
+        "id": unique_id,
+        "audio_file": f"{unique_id}.wav",
+        "transcription_file": f"{unique_id}.txt",
+        "transcription_text": text,
+        "duration": duration,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    metadata_path = f"shared_audios/{unique_id}.json"
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    # Generate shareable link
+    base_url = st.secrets.get("base_url", "http://localhost:8501")
+    share_link = f"{base_url}/player?id={unique_id}"
+
+    st.subheader("🔗 Share Link")
+    st.code(share_link, language="text")
+    st.info("Copy this link to share the audio player with the transcription")
 
     # Download buttons
     st.subheader("⬇️ Downloads")
 
-    with open(audio_path, "rb") as f:
+    with open(shared_audio_path, "rb") as f:
         st.download_button(
             label="Download Audio (WAV)",
             data=f,
-            file_name="audio.wav",
+            file_name=f"{unique_id}.wav",
             mime="audio/wav"
         )
 
@@ -64,10 +99,6 @@ if audio:
         st.download_button(
             label="Download Transcription (TXT)",
             data=f,
-            file_name="transcription.txt",
+            file_name=f"{unique_id}.txt",
             mime="text/plain"
         )
-
-    # Cleanup (optional)
-    # os.remove(audio_path)
-    # os.remove(txt_path)
