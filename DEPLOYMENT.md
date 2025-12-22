@@ -45,19 +45,43 @@ The GitHub Action will automatically:
 
 ## Persistent Storage
 
-Audio files are stored in a Docker volume named `audio-transcriber-data` which persists across deployments.
+Audio files are stored in `/home/ajustado/audio-transcriber-data` on your VPS, which is mounted into the Docker container at `/app/shared_audios`.
 
-To view stored audios on your VPS:
-
-```bash
-docker exec -it audio-transcriber ls -la /app/shared_audios
-```
-
-To backup the volume:
+### Access files directly on VPS:
 
 ```bash
-docker run --rm -v audio-transcriber-data:/data -v $(pwd):/backup alpine tar czf /backup/audio-backup.tar.gz /data
+# View stored audios
+ls -la /home/ajustado/audio-transcriber-data
+
+# Delete old files (older than 7 days)
+find /home/ajustado/audio-transcriber-data -type f -mtime +7 -delete
+
+# Delete all files
+rm -rf /home/ajustado/audio-transcriber-data/*
 ```
+
+### Backup the data:
+
+```bash
+cd /home/ajustado
+tar czf audio-backup-$(date +%Y%m%d).tar.gz audio-transcriber-data/
+```
+
+### Setup automatic cleanup (optional):
+
+Create a cron job to delete files older than 30 days:
+
+```bash
+crontab -e
+```
+
+Add this line:
+
+```
+0 2 * * * find /home/ajustado/audio-transcriber-data -type f -mtime +30 -delete
+```
+
+This will run daily at 2 AM and delete files older than 30 days.
 
 ## Troubleshooting
 
@@ -80,5 +104,15 @@ docker run --rm -v audio-transcriber-data:/data -v $(pwd):/backup alpine tar czf
 
 4. Check if shared_audios directory exists and has files:
    ```bash
+   # From host (outside Docker)
+   ls -la /home/ajustado/audio-transcriber-data
+
+   # From inside container
    docker exec -it audio-transcriber ls -la /app/shared_audios
+   ```
+
+5. Verify directory permissions:
+   ```bash
+   ls -ld /home/ajustado/audio-transcriber-data
+   # Should be readable/writable
    ```

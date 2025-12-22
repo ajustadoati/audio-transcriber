@@ -34,14 +34,14 @@ jobs:
           # Build new image
           docker build -t audio-transcriber .
 
-          # Create volume for shared audios if it doesn't exist
-          docker volume create audio-transcriber-data 2>/dev/null || true
+          # Create host directory for shared audios if it doesn't exist
+          mkdir -p /home/ajustado/audio-transcriber-data
 
-          # Run new container with persistent volume
+          # Run new container with mounted host directory
           docker run -d \
             --name audio-transcriber \
             -p 8501:8501 \
-            -v audio-transcriber-data:/app/shared_audios \
+            -v /home/ajustado/audio-transcriber-data:/app/shared_audios \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
             audio-transcriber
         EOF

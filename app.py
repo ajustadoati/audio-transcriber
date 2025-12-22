@@ -4,6 +4,7 @@ from openai import OpenAI
 import os
 import uuid
 import json
+import shutil
 from datetime import datetime
 
 st.set_page_config(page_title="English Audio Transcriber", layout="centered")
@@ -55,7 +56,7 @@ if audio:
 
     # Save audio with unique ID
     shared_audio_path = f"shared_audios/{unique_id}.wav"
-    os.rename(audio_path, shared_audio_path)
+    shutil.move(audio_path, shared_audio_path)
 
     # Save transcription to file
     txt_path = f"shared_audios/{unique_id}.txt"
