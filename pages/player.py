@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+from pathlib import Path
 
 st.set_page_config(page_title="Audio Player", layout="centered")
 
@@ -12,9 +13,14 @@ if not audio_id:
     st.info("Please use a valid share link")
     st.stop()
 
+# Get absolute path to shared_audios directory
+# In Docker: /app, In local: parent of pages directory
+BASE_DIR = Path(__file__).resolve().parent.parent
+SHARED_DIR = BASE_DIR / "shared_audios"
+
 # Check if the audio exists
-metadata_path = f"shared_audios/{audio_id}.json"
-audio_path = f"shared_audios/{audio_id}.wav"
+metadata_path = SHARED_DIR / f"{audio_id}.json"
+audio_path = SHARED_DIR / f"{audio_id}.wav"
 
 if not os.path.exists(metadata_path) or not os.path.exists(audio_path):
     st.error("❌ Audio not found")
@@ -60,7 +66,7 @@ with col1:
         )
 
 with col2:
-    txt_path = f"shared_audios/{audio_id}.txt"
+    txt_path = SHARED_DIR / f"{audio_id}.txt"
     with open(txt_path, "rb") as f:
         st.download_button(
             label="Download Transcription",

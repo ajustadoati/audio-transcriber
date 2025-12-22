@@ -27,11 +27,21 @@ jobs:
           cd /home/ajustado/audio-transcriber || exit 1
           git pull origin main
 
+          # Stop and remove old container if exists
+          docker stop audio-transcriber 2>/dev/null || true
+          docker rm audio-transcriber 2>/dev/null || true
+
+          # Build new image
           docker build -t audio-transcriber .
 
+          # Create volume for shared audios if it doesn't exist
+          docker volume create audio-transcriber-data 2>/dev/null || true
+
+          # Run new container with persistent volume
           docker run -d \
             --name audio-transcriber \
             -p 8501:8501 \
+            -v audio-transcriber-data:/app/shared_audios \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
             audio-transcriber
         EOF

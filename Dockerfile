@@ -13,6 +13,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
+COPY pages/ ./pages/
+
+# Create directory for shared audios (will be mounted as volume)
+RUN mkdir -p /app/shared_audios
 
 EXPOSE 8501
 
